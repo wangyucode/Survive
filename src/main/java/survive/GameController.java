@@ -1,11 +1,11 @@
 package survive;
 
-import survive.entity.ClientMessage;
-import survive.entity.GameData;
-import survive.entity.ServerMessage;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
+import survive.entity.ClientMessage;
+import survive.entity.GameData;
+import survive.entity.ServerMessage;
 
 @Controller
 public class GameController {
