@@ -7,12 +7,15 @@ import java.util.ArrayList;
  */
 public class GameData {
 
-    public Food[] foods;
+    public ArrayList<Food> foods;
 
-    public ArrayList<Player> players;
+    public ArrayList<Player> others;
 
-    public GameData(Food[] foods, ArrayList<Player> players) {
+    public Player player;
+
+    public GameData(Player player,ArrayList<Food> foods, ArrayList<Player> others) {
+        this.player = player;
         this.foods = foods;
-        this.players = players;
+        this.others = others;
     }
 }

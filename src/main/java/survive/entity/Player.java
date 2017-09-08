@@ -5,15 +5,32 @@ package survive.entity;
  */
 public class Player {
 
+    public int id;
+
     public String name;
 
-    public int x;
-    public int y;
-    public int radius = 5;
+    public double x;
+    public double y;
 
-    public int direction = 0; //1 top, 2 right, 3 down, 4 left
+    public int mass = 1;
+    public int radius =(int) (2*Math.PI*mass);
 
-    public Player(String name) {
+    public Target target;
+
+    public Player(String name, int id, double x, double y) {
         this.name = name;
+        this.id = id;
+        this.x = x;
+        this.y = y;
     }
+
+    public Player() {
+    }
+
+    public class Target{
+        public int x;
+        public int y;
+    }
+
+
 }

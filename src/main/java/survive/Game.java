@@ -1,8 +1,11 @@
 package survive;
 
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.stereotype.Component;
 import survive.entity.Food;
 import survive.entity.GameData;
 import survive.entity.Player;
+import survive.entity.ServerMessage;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -10,14 +13,20 @@ import java.util.Random;
 /**
  * Created by wayne on 2017/9/7.
  */
-public class Game {
+@Component
+public class Game implements Runnable {
 
-    public static final int width = 600;
-    public static final int height = 600;
+
+    public static final int width = 800;
+    public static final int height = 800;
+    public static final int visibleWidth = 400;
+    public static final int visibleHeight = 400;
 
     public static final int foodCount = 100;
 
-    public Food[] foods;
+    public static final int speed = 20;
+
+    public ArrayList<Food> foods;
 
     public ArrayList<Player> players;
 
@@ -25,22 +34,32 @@ public class Game {
 
     private static Game mInstance;
 
+    private long lastUpdateTime;
+    private long lastMoveTime;
+    private static final int updateInterval = 1000;
+
+    private Random random;
+
+    SimpMessagingTemplate messagingTemplate;
+
     private Game() {
-        foods = new Food[foodCount];
+        random = new Random();
+        foods = new ArrayList<>(100);
+        players = new ArrayList<>();
 
         initFood();
 
-        players = new ArrayList<>();
+        gameData = new GameData(null, foods, players);
 
-        gameData = new GameData(foods, players);
+        new Thread(this).start();
     }
 
     private void initFood() {
-        Random random = new Random();
+
         for (int i = 0; i < foodCount; i++) {
             int x = random.nextInt(width);
             int y = random.nextInt(height);
-            foods[i] = new Food(x, y);
+            foods.add(new Food(x, y));
         }
     }
 
@@ -53,7 +72,7 @@ public class Game {
         return mInstance;
     }
 
-    public boolean checkNameExist(String name){
+    public boolean checkNameExist(String name) {
         for (Player player : players) {
             if (player.name.equals(name)) {
                 return false;
@@ -63,7 +82,103 @@ public class Game {
         return true;
     }
 
-    public void addPlayer(String name){
-        players.add(new Player(name));
+    public Player addPlayer(String name) {
+        int x = random.nextInt(width);
+        int y = random.nextInt(height);
+        Player player = new Player(name, players.size() + 1, x, y);
+        players.add(player);
+        return player;
+    }
+
+    @Override
+    public void run() {
+        while (true) {
+            for (Player player : players) {
+                movePlayer(player);
+            }
+            long timeElapse = System.currentTimeMillis() - lastUpdateTime;
+            if (timeElapse > updateInterval) {
+                update();
+            } else {
+                try {
+                    Thread.sleep(updateInterval - timeElapse);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    private void update() {
+        for (Player player : players) {
+            double left = player.x - visibleWidth / 2;
+            double top = player.y - visibleHeight / 2;
+            double right = left + visibleWidth;
+            double bottom = top + visibleHeight;
+
+            ArrayList<Food> visibleFoods = new ArrayList<>();
+            ArrayList<Player> visiblePlayer = new ArrayList<>();
+
+            for (Food food : foods) {
+                if (food.x > left && food.y > top && food.x < right && food.y < bottom) {
+                    visibleFoods.add(food);
+                }
+            }
+
+            for (Player p : players) {
+                if (player.id != p.id && p.x > left && p.y > top && p.x < right && p.y < bottom) {
+                    visiblePlayer.add(p);
+                }
+            }
+
+            GameData visibleData = new GameData(player, visibleFoods, visiblePlayer);
+            ServerMessage<GameData> message = new ServerMessage<>(1, "gameData", "update", visibleData);
+            messagingTemplate.convertAndSendToUser(String.valueOf(player.id), "/update", message);
+        }
+
+        lastUpdateTime = System.currentTimeMillis();
+
+    }
+
+    private void movePlayer(Player player) {
+        if (player == null || player.target == null) {
+            return;
+        }
+        if (lastMoveTime == 0) {
+            lastMoveTime = System.currentTimeMillis();
+        }
+        long timeElapse = System.currentTimeMillis() - lastMoveTime;
+        double deg = Math.atan2(player.target.y, player.target.x);
+        double deltaX = Math.cos(deg) * speed * timeElapse / 1000;
+        player.x += deltaX;
+        double deltaY = Math.sin(deg) * speed * timeElapse / 1000;
+        player.y += deltaY;
+
+        if (player.x + player.radius > width) {
+            player.x = width - player.radius;
+        }
+
+        if (player.x - player.radius < 0) {
+            player.x = player.radius;
+        }
+
+        if (player.y + player.radius > height) {
+            player.y = height - player.radius;
+        }
+
+        if (player.y - player.radius < 0) {
+            player.y = player.radius;
+        }
+
+        lastMoveTime = System.currentTimeMillis();
+    }
+
+    public void updatePlayerTarget(Player player) {
+        for (Player p : players) {
+            if (p.id == player.id) {
+                p.target = player.target;
+                break;
+            }
+        }
     }
 }
