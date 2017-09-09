@@ -1,7 +1,10 @@
 package survive;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.web.socket.config.WebSocketMessageBrokerStats;
 import survive.entity.Food;
 import survive.entity.GameData;
 import survive.entity.Player;
@@ -13,9 +16,9 @@ import java.util.Random;
 /**
  * Created by wayne on 2017/9/7.
  */
-@Component
 public class Game implements Runnable {
 
+    Log log = LogFactory.getLog(Game.class);
 
     public static final int width = 800;
     public static final int height = 800;
@@ -24,7 +27,7 @@ public class Game implements Runnable {
 
     public static final int foodCount = 100;
 
-    public static final int speed = 20;
+    public static final int speed = 30;
 
     public ArrayList<Food> foods;
 
@@ -36,7 +39,7 @@ public class Game implements Runnable {
 
     private long lastUpdateTime;
     private long lastMoveTime;
-    private static final int updateInterval = 100;
+    private static final int updateInterval = 70;
 
     private Random random;
 
@@ -93,9 +96,8 @@ public class Game implements Runnable {
     @Override
     public void run() {
         while (true) {
-            for (Player player : players) {
-                movePlayer(player);
-            }
+
+                movePlayer();
             long timeElapse = System.currentTimeMillis() - lastUpdateTime;
             if (timeElapse > updateInterval) {
                 sendUpdate();
@@ -140,36 +142,42 @@ public class Game implements Runnable {
 
     }
 
-    private void movePlayer(Player player) {
-        if (player == null || player.target == null) {
-            return;
-        }
+    private void movePlayer() {
         if (lastMoveTime == 0) {
             lastMoveTime = System.currentTimeMillis();
         }
         long timeElapse = System.currentTimeMillis() - lastMoveTime;
-        double deg = Math.atan2(player.target.y, player.target.x);
-        double deltaX = Math.cos(deg) * speed * timeElapse / 1000;
-        player.x += deltaX;
-        double deltaY = Math.sin(deg) * speed * timeElapse / 1000;
-        player.y += deltaY;
 
-        if (player.x + player.radius > width) {
-            player.x = width - player.radius;
+        for (Player player : players) {
+            if (player == null || player.target == null) {
+                return;
+            }
+            double deg = Math.atan2(player.target.y, player.target.x);
+            double deltaX = Math.cos(deg) * speed * timeElapse / 1000;
+            player.x += deltaX;
+            double deltaY = Math.sin(deg) * speed * timeElapse / 1000;
+            player.y += deltaY;
+
+            if(player.id == 2){
+                log.debug(player);
+            }
+
+            if (player.x + player.radius > width) {
+                player.x = width - player.radius;
+            }
+
+            if (player.x - player.radius < 0) {
+                player.x = player.radius;
+            }
+
+            if (player.y + player.radius > height) {
+                player.y = height - player.radius;
+            }
+
+            if (player.y - player.radius < 0) {
+                player.y = player.radius;
+            }
         }
-
-        if (player.x - player.radius < 0) {
-            player.x = player.radius;
-        }
-
-        if (player.y + player.radius > height) {
-            player.y = height - player.radius;
-        }
-
-        if (player.y - player.radius < 0) {
-            player.y = player.radius;
-        }
-
         lastMoveTime = System.currentTimeMillis();
     }
 

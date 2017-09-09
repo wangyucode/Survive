@@ -32,5 +32,16 @@ public class Player {
         public int y;
     }
 
-
+    @Override
+    public String toString() {
+        return "Player{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", x=" + x +
+                ", y=" + y +
+                ", mass=" + mass +
+                ", radius=" + radius +
+                ", target=" + target.x+"|"+target.y +
+                '}';
+    }
 }

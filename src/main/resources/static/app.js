@@ -123,7 +123,7 @@ function connect() {
 
             if (response.code === 1) {
                 //setInterval("selfUpdate()", 50);
-                setInterval("sendTarget()",100);
+                setInterval("sendTarget()",200);
                 showLog(response.message + " " + response.data.name);
                 if ($("#name").val() === response.data.name) { //名称和自己相同
                     playerId = response.data.id;
@@ -196,10 +196,8 @@ $(function () {
     canvas.addEventListener('mousemove', function (evt) {
         var mousePos = getMousePos(canvas, evt);
         mousePosition = mousePos;
-        var message = 'Mouse position: ' + mousePos.x + ',' + mousePos.y;
-        console.log(message);
-
-
+        //var message = 'Mouse position: ' + mousePos.x + ',' + mousePos.y;
+        //console.log(message);
     });
     ctx = canvas.getContext("2d");
 
