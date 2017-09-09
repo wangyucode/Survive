@@ -44,11 +44,6 @@ function update() {
     if (bottom > globalHeight) {
         ctx.fillRect(0, visibleHeight - (bottom - globalHeight), visibleWidth, bottom - globalHeight);
     }
-    //draw self
-    ctx.fillStyle = "#e91e63";
-    ctx.beginPath();
-    ctx.arc(gameData.player.x - left, gameData.player.y - top, gameData.player.radius, 0, 2 * Math.PI);
-    ctx.fill();
 
     //draw food
     ctx.fillStyle = "#009688";
@@ -65,6 +60,12 @@ function update() {
         ctx.arc(gameData.others[i].x - left, gameData.others[i].y - top, gameData.others[i].radius, 0, 2 * Math.PI);
         ctx.fill();
     }
+
+    //draw self
+    ctx.fillStyle = "#e91e63";
+    ctx.beginPath();
+    ctx.arc(gameData.player.x - left, gameData.player.y - top, gameData.player.radius, 0, 2 * Math.PI);
+    ctx.fill();
 
 }
 
@@ -121,7 +122,8 @@ function connect() {
             var response = JSON.parse(serverMessage.body);
 
             if (response.code === 1) {
-                setInterval("selfUpdate()", 50);
+                //setInterval("selfUpdate()", 50);
+                setInterval("sendTarget()",100);
                 showLog(response.message + " " + response.data.name);
                 if ($("#name").val() === response.data.name) { //名称和自己相同
                     playerId = response.data.id;
@@ -144,6 +146,12 @@ function connect() {
 
         stompClient.send("/app/login", {}, JSON.stringify({'message': $("#name").val(), 'type': 'login'}));
     });
+}
+
+function sendTarget() {
+    if (stompClient !== null && playerId !== 0 &&mousePosition!==null) {
+        stompClient.send("/app/setTarget", {}, JSON.stringify({'id': playerId, 'target': mousePosition}));
+    }
 }
 
 function disconnect() {
@@ -190,9 +198,7 @@ $(function () {
         mousePosition = mousePos;
         var message = 'Mouse position: ' + mousePos.x + ',' + mousePos.y;
         console.log(message);
-        if (stompClient !== null && playerId !== 0) {
-            stompClient.send("/app/setTarget", {}, JSON.stringify({'id': playerId, 'target': mousePos}));
-        }
+
 
     });
     ctx = canvas.getContext("2d");

@@ -36,7 +36,7 @@ public class Game implements Runnable {
 
     private long lastUpdateTime;
     private long lastMoveTime;
-    private static final int updateInterval = 1000;
+    private static final int updateInterval = 100;
 
     private Random random;
 
@@ -98,7 +98,7 @@ public class Game implements Runnable {
             }
             long timeElapse = System.currentTimeMillis() - lastUpdateTime;
             if (timeElapse > updateInterval) {
-                update();
+                sendUpdate();
             } else {
                 try {
                     Thread.sleep(updateInterval - timeElapse);
@@ -109,7 +109,7 @@ public class Game implements Runnable {
         }
     }
 
-    private void update() {
+    private void sendUpdate() {
         for (Player player : players) {
             double left = player.x - visibleWidth / 2;
             double top = player.y - visibleHeight / 2;
@@ -132,7 +132,7 @@ public class Game implements Runnable {
             }
 
             GameData visibleData = new GameData(player, visibleFoods, visiblePlayer);
-            ServerMessage<GameData> message = new ServerMessage<>(1, "gameData", "update", visibleData);
+            ServerMessage<GameData> message = new ServerMessage<>(1, "gameData", "sendUpdate", visibleData);
             messagingTemplate.convertAndSendToUser(String.valueOf(player.id), "/update", message);
         }
 
