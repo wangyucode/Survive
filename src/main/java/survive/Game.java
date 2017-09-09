@@ -1,10 +1,6 @@
 package survive;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.stereotype.Component;
-import org.springframework.web.socket.config.WebSocketMessageBrokerStats;
 import survive.entity.Food;
 import survive.entity.GameData;
 import survive.entity.Player;
@@ -17,8 +13,6 @@ import java.util.Random;
  * Created by wayne on 2017/9/7.
  */
 public class Game implements Runnable {
-
-    Log log = LogFactory.getLog(Game.class);
 
     public static final int width = 800;
     public static final int height = 800;
@@ -157,10 +151,6 @@ public class Game implements Runnable {
             player.x += deltaX;
             double deltaY = Math.sin(deg) * speed * timeElapse / 1000;
             player.y += deltaY;
-
-            if(player.id == 2){
-                log.debug(player);
-            }
 
             if (player.x + player.radius > width) {
                 player.x = width - player.radius;
