@@ -49,7 +49,7 @@ function update() {
     ctx.fillStyle = "#009688";
     for (i in gameData.foods) {
         ctx.beginPath();
-        ctx.arc(gameData.foods[i].x - left, gameData.foods[i].y - top, 1, 0, 2 * Math.PI);
+        ctx.arc(gameData.foods[i].x - left, gameData.foods[i].y - top, gameData.foods[i].radius, 0, 2 * Math.PI);
         ctx.fill();
     }
 

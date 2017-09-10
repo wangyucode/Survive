@@ -8,16 +8,16 @@ import java.util.List;
  */
 public class QuadTree {
 
-    public int MAX_OBJECTS = 10;
-    public int MAX_LEVELS = 5;
+    private static final int MAX_OBJECTS = 10;
+    private static final int MAX_LEVELS = 5;
 
-    public Rect rect;
+    private Rect rect;
 
-    public ArrayList<Rect> objects;
+    private ArrayList<Rect> objects;
 
-    public QuadTree[] nodes;
+    private QuadTree[] nodes;
 
-    public int level;
+    private int level;
 
     public QuadTree(double x, double y, double w, double h) {
         this(0, x, y, w, h);
@@ -114,12 +114,13 @@ public class QuadTree {
 
         if (objects.size() > MAX_OBJECTS && level < MAX_LEVELS) {
             split();
-
-            for (Rect r : objects) {
-                int index = getIndex(r);
+            int i = 0;
+            while (i < objects.size()) {
+                int index = getIndex(objects.get(i));
                 if (index != -1) {
-                    objects.remove(r);
-                    nodes[index].insert(r);
+                    nodes[index].insert(objects.remove(i));
+                } else {
+                    i++;
                 }
             }
         }
@@ -140,7 +141,7 @@ public class QuadTree {
     }
 
 
-    class Rect {
+    public static class Rect {
         public double x;
         public double y;
         public double w;

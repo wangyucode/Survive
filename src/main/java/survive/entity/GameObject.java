@@ -7,4 +7,5 @@ public class GameObject {
 
     public double x;
     public double y;
+    public double radius;
 }

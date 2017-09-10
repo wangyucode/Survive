@@ -9,8 +9,7 @@ public class Player extends GameObject {
 
     public String name;
 
-    public int mass = 1;
-    public int radius =(int) (2*Math.PI*mass);
+    public int mass = 5;
 
     public Target target;
 
@@ -19,6 +18,7 @@ public class Player extends GameObject {
         this.id = id;
         this.x = x;
         this.y = y;
+        this.radius =mass/2*Math.PI;
     }
 
     public Player() {

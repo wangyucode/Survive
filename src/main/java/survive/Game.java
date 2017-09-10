@@ -1,10 +1,7 @@
 package survive;
 
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import survive.entity.Food;
-import survive.entity.GameData;
-import survive.entity.Player;
-import survive.entity.ServerMessage;
+import survive.entity.*;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -39,6 +36,8 @@ public class Game implements Runnable {
 
     SimpMessagingTemplate messagingTemplate;
 
+    private QuadTree quadTree;
+
     private Game() {
         random = new Random();
         foods = new ArrayList<>(100);
@@ -48,7 +47,16 @@ public class Game implements Runnable {
 
         gameData = new GameData(null, foods, players);
 
+        initQuadTree();
+
         new Thread(this).start();
+    }
+
+    private void initQuadTree() {
+        quadTree = new QuadTree(0,0,width,height);
+        for (Food f:foods) {
+            quadTree.insert(new QuadTree.Rect(f.x-f.radius,f.y-f.radius,f.radius*2,f.radius*2));
+        }
     }
 
     private void initFood() {

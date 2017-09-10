@@ -8,5 +8,6 @@ public class Food extends GameObject{
     public Food(int x, int y) {
         this.x = x;
         this.y = y;
+        this.radius =1;
     }
 }
