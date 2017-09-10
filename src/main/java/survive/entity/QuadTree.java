@@ -13,7 +13,7 @@ public class QuadTree {
 
     private Rect rect;
 
-    private ArrayList<Rect> objects;
+    private ArrayList<GameObject> objects;
 
     private QuadTree[] nodes;
 
@@ -64,18 +64,18 @@ public class QuadTree {
      * object cannot completely fit within a child node and is part
      * of the parent node
      */
-    private int getIndex(Rect pRect) {
+    private int getIndex(GameObject object) {
         int index = -1;
         double verticalMidpoint = rect.x + (rect.w / 2);
         double horizontalMidpoint = rect.y + (rect.h / 2);
 
         // Object can completely fit within the top quadrants
-        boolean topQuadrant = (pRect.y < horizontalMidpoint && pRect.y + pRect.h < horizontalMidpoint);
+        boolean topQuadrant = (object.y + object.radius < horizontalMidpoint);
         // Object can completely fit within the bottom quadrants
-        boolean bottomQuadrant = (pRect.y > horizontalMidpoint);
+        boolean bottomQuadrant = (object.y - object.radius > horizontalMidpoint);
 
         // Object can completely fit within the left quadrants
-        if (pRect.x < verticalMidpoint && pRect.x + pRect.w < verticalMidpoint) {
+        if (object.x + object.radius < verticalMidpoint) {
             if (topQuadrant) {
                 index = 1;
             } else if (bottomQuadrant) {
@@ -83,7 +83,7 @@ public class QuadTree {
             }
         }
         // Object can completely fit within the right quadrants
-        else if (pRect.x > verticalMidpoint) {
+        else if (object.x - object.radius > verticalMidpoint) {
             if (topQuadrant) {
                 index = 0;
             } else if (bottomQuadrant) {
@@ -99,18 +99,18 @@ public class QuadTree {
      * exceeds the capacity, it will split and add all
      * objects to their corresponding nodes.
      */
-    public void insert(Rect pRect) {
+    public void insert(GameObject object) {
         if (nodes[0] != null) {
-            int index = getIndex(pRect);
+            int index = getIndex(object);
 
             if (index != -1) {
-                nodes[index].insert(pRect);
+                nodes[index].insert(object);
 
                 return;
             }
         }
 
-        objects.add(pRect);
+        objects.add(object);
 
         if (objects.size() > MAX_OBJECTS && level < MAX_LEVELS) {
             split();
@@ -126,13 +126,27 @@ public class QuadTree {
         }
     }
 
+    public void remove(GameObject object){
+        if (nodes[0] != null) {
+            int index = getIndex(object);
+
+            if (index != -1) {
+                nodes[index].remove(object);
+
+                return;
+            }
+        }
+
+        objects.remove(object);
+    }
+
     /**
      * Return all objects that could collide with the given object
      */
-    public List<Rect> retrieve(List<Rect> returnObjects, Rect pRect) {
-        int index = getIndex(pRect);
+    public List<GameObject> retrieve(List<GameObject> returnObjects, GameObject object) {
+        int index = getIndex(object);
         if (index != -1 && nodes[0] != null) {
-            nodes[index].retrieve(returnObjects, pRect);
+            nodes[index].retrieve(returnObjects, object);
         }
 
         returnObjects.addAll(objects);

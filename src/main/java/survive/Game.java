@@ -4,6 +4,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import survive.entity.*;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -53,9 +54,9 @@ public class Game implements Runnable {
     }
 
     private void initQuadTree() {
-        quadTree = new QuadTree(0,0,width,height);
-        for (Food f:foods) {
-            quadTree.insert(new QuadTree.Rect(f.x-f.radius,f.y-f.radius,f.radius*2,f.radius*2));
+        quadTree = new QuadTree(0, 0, width, height);
+        for (Food f : foods) {
+            quadTree.insert(f);
         }
     }
 
@@ -114,7 +115,24 @@ public class Game implements Runnable {
     }
 
     private void collisionCheck() {
+        List<GameObject> objectsMayCollision = new ArrayList<>();
+        for (Player player : players) {
+            objectsMayCollision.clear();
+            quadTree.retrieve(objectsMayCollision, player);
 
+            for (GameObject o : objectsMayCollision) {
+                double distance = Math.sqrt(Math.pow(player.x - o.x, 2) + Math.pow(player.y - o.y, 2));
+                if (distance < player.radius + o.radius) {
+                    if (o instanceof Food) {
+                        player.addMass(1);
+                        quadTree.remove(o);
+                        o.x = random.nextInt(width);
+                        o.y = random.nextInt(height);
+                        quadTree.insert(o);
+                    }
+                }
+            }
+        }
     }
 
 

@@ -9,7 +9,7 @@ public class Player extends GameObject {
 
     public String name;
 
-    public int mass = 5;
+    private int mass = 30;
 
     public Target target;
 
@@ -18,15 +18,20 @@ public class Player extends GameObject {
         this.id = id;
         this.x = x;
         this.y = y;
-        this.radius =mass/2*Math.PI;
+        this.radius = mass / (2 * Math.PI);
     }
 
     public Player() {
     }
 
-    public class Target{
+    public class Target {
         public int x;
         public int y;
+    }
+
+    public void addMass(int m) {
+        mass += m;
+        this.radius = mass / (2 * Math.PI);
     }
 
     @Override
@@ -38,7 +43,7 @@ public class Player extends GameObject {
                 ", y=" + y +
                 ", mass=" + mass +
                 ", radius=" + radius +
-                ", target=" + target.x+"|"+target.y +
+                ", target=" + target.x + "|" + target.y +
                 '}';
     }
 }
