@@ -90,8 +90,8 @@ public class Game implements Runnable {
     @Override
     public void run() {
         while (true) {
-
-                movePlayer();
+            movePlayer();
+            collisionCheck();
             long timeElapse = System.currentTimeMillis() - lastUpdateTime;
             if (timeElapse > updateInterval) {
                 sendUpdate();
@@ -104,6 +104,11 @@ public class Game implements Runnable {
             }
         }
     }
+
+    private void collisionCheck() {
+
+    }
+
 
     private void sendUpdate() {
         for (Player player : players) {

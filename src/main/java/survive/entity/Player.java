@@ -3,14 +3,11 @@ package survive.entity;
 /**
  * Created by wayne on 2017/9/7.
  */
-public class Player {
+public class Player extends GameObject {
 
     public int id;
 
     public String name;
-
-    public double x;
-    public double y;
 
     public int mass = 1;
     public int radius =(int) (2*Math.PI*mass);
