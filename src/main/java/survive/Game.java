@@ -94,6 +94,9 @@ public class Game implements Runnable {
         Player player = new Player(name, players.size() + 1, x, y);
         players.add(player);
         quadTree.insert(player);
+        //broadcast new player join the game
+        ServerMessage message = new ServerMessage<>(1,"login",player.name+" joined the game",null);
+        messagingTemplate.convertAndSend("/topic/broadcast",message);
         return player;
     }
 
@@ -138,6 +141,9 @@ public class Game implements Runnable {
                             o.x = random.nextInt((int) (width - o.radius + 0.5));
                             o.y = random.nextInt((int) (height - o.radius + 0.5));
                             quadTree.insert(o);
+                            //broadcast player was eaten;
+                            ServerMessage<Integer> message = new ServerMessage<>(1,"die",((Player) o).name+" was eaten by "+player.name,((Player) o).id);
+                            messagingTemplate.convertAndSend("/topic/broadcast",message);
                         }
                     }
                 }

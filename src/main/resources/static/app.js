@@ -14,6 +14,8 @@ var mousePosition;
 
 var lastSelfUpdateTime;
 
+var logMessage;
+
 
 function setConnected(connected) {
     $("#send").prop("disabled", connected);
@@ -67,6 +69,8 @@ function update() {
     ctx.arc(gameData.player.x - left, gameData.player.y - top, gameData.player.radius, 0, 2 * Math.PI);
     ctx.fill();
 
+    //draw log
+    ctx.fillText(logMessage,10,10);
 }
 
 function selfUpdate() {
@@ -124,7 +128,7 @@ function connect() {
             if (response.code === 1) {
                 //setInterval("selfUpdate()", 50);
                 setInterval("sendTarget()",200);
-                showLog(response.message + " " + response.data.name);
+                //showLog(response.message + " " + response.data.name);
                 if ($("#name").val() === response.data.name) { //名称和自己相同
                     playerId = response.data.id;
                     stompClient.subscribe('/user/' + playerId + '/update', function (serverMessage) {
@@ -142,6 +146,10 @@ function connect() {
             } else if (response.code === 0) {
                 showLog(response.message);
             }
+        });
+        stompClient.subscribe('/topic/broadcast', function (serverMessage) {
+            var response = JSON.parse(serverMessage.body);
+            showLog(response.message);
         });
 
         stompClient.send("/app/login", {}, JSON.stringify({'message': $("#name").val(), 'type': 'login'}));
@@ -171,7 +179,7 @@ function sendName() {
 
 
 function showLog(message) {
-    ctx.fillText(message, 10, 10);
+    logMessage = message;
 }
 
 function getMousePos(canvas, evt) {
