@@ -93,6 +93,7 @@ public class Game implements Runnable {
         int y = random.nextInt(height);
         Player player = new Player(name, players.size() + 1, x, y);
         players.add(player);
+        quadTree.insert(player);
         return player;
     }
 
@@ -122,13 +123,22 @@ public class Game implements Runnable {
 
             for (GameObject o : objectsMayCollision) {
                 double distance = Math.sqrt(Math.pow(player.x - o.x, 2) + Math.pow(player.y - o.y, 2));
-                if (distance < player.radius + o.radius) {
+                if (distance < Math.abs(player.radius - o.radius)) { //内切
                     if (o instanceof Food) {
                         player.addMass(1);
                         quadTree.remove(o);
                         o.x = random.nextInt(width);
                         o.y = random.nextInt(height);
                         quadTree.insert(o);
+                    } else if (o instanceof Player) {
+                        if (player.getMass() > ((Player) o).getMass()) {
+                            player.addMass(((Player) o).getMass() * 0.8);
+                            quadTree.remove(o);
+                            ((Player) o).setMass(Player.INIT_MASS);
+                            o.x = random.nextInt((int) (width - o.radius + 0.5));
+                            o.y = random.nextInt((int) (height - o.radius + 0.5));
+                            quadTree.insert(o);
+                        }
                     }
                 }
             }
@@ -177,6 +187,8 @@ public class Game implements Runnable {
             if (player == null || player.target == null) {
                 return;
             }
+            quadTree.remove(player);
+
             double deg = Math.atan2(player.target.y, player.target.x);
             double deltaX = Math.cos(deg) * speed * timeElapse / 1000;
             player.x += deltaX;
@@ -198,6 +210,8 @@ public class Game implements Runnable {
             if (player.y - player.radius < 0) {
                 player.y = player.radius;
             }
+
+            quadTree.insert(player);
         }
         lastMoveTime = System.currentTimeMillis();
     }

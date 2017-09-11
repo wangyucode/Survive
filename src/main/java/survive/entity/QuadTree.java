@@ -126,7 +126,7 @@ public class QuadTree {
         }
     }
 
-    public void remove(GameObject object){
+    public void remove(GameObject object) {
         if (nodes[0] != null) {
             int index = getIndex(object);
 
@@ -136,8 +136,10 @@ public class QuadTree {
                 return;
             }
         }
+        if (!objects.remove(object)) {
+            System.out.println(object+" not deleted!");
+        }
 
-        objects.remove(object);
     }
 
     /**

@@ -5,11 +5,13 @@ package survive.entity;
  */
 public class Player extends GameObject {
 
+    public static final double  INIT_MASS= 30;
+
     public int id;
 
     public String name;
 
-    private int mass = 30;
+    private double mass = INIT_MASS;
 
     public Target target;
 
@@ -18,7 +20,7 @@ public class Player extends GameObject {
         this.id = id;
         this.x = x;
         this.y = y;
-        this.radius = mass / (2 * Math.PI);
+        updateRadius();
     }
 
     public Player() {
@@ -29,9 +31,22 @@ public class Player extends GameObject {
         public int y;
     }
 
-    public void addMass(int m) {
+    public void addMass(double m) {
         mass += m;
-        this.radius = mass / (2 * Math.PI);
+        updateRadius();
+    }
+
+    public double getMass(){
+        return mass;
+    }
+
+    public void setMass(double m){
+        mass = m;
+        updateRadius();
+    }
+
+    private void updateRadius(){
+        radius = mass / (2 * Math.PI);
     }
 
     @Override
