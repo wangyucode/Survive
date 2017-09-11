@@ -25,10 +25,35 @@ function setConnected(connected) {
 function update() {
     //clean canvas
     ctx.clearRect(0, 0, visibleWidth, visibleHeight);
+
     var left = gameData.player.x - visibleWidth / 2;
     var top = gameData.player.y - visibleHeight / 2;
     var right = left + visibleWidth;
     var bottom = top + visibleHeight;
+
+    //draw line
+    ctx.strokeStyle = "#ddd";
+    ctx.lineWidth = 1;
+    var i = 20 - left;
+    while (i < visibleWidth) {
+        if (i > 0) {
+            ctx.moveTo(i, 0);
+            ctx.lineTo(i, visibleHeight);
+            ctx.stroke();
+        }
+        i += 20;
+    }
+
+    i = 20 - top;
+    while (i < visibleHeight) {
+        if (i > 0) {
+            ctx.moveTo(0, i);
+            ctx.lineTo(visibleWidth, i);
+            ctx.stroke();
+        }
+        i += 20;
+    }
+
     //draw wall
     ctx.fillStyle = "#795548";
     if (left < 0) {
@@ -70,7 +95,7 @@ function update() {
     ctx.fill();
 
     //draw log
-    ctx.fillText(logMessage,10,10);
+    ctx.fillText(logMessage, 10, 10);
 }
 
 function selfUpdate() {
@@ -127,7 +152,7 @@ function connect() {
 
             if (response.code === 1) {
                 //setInterval("selfUpdate()", 50);
-                setInterval("sendTarget()",200);
+                setInterval("sendTarget()", 200);
                 //showLog(response.message + " " + response.data.name);
                 if ($("#name").val() === response.data.name) { //名称和自己相同
                     playerId = response.data.id;
@@ -157,7 +182,7 @@ function connect() {
 }
 
 function sendTarget() {
-    if (stompClient !== null && playerId !== 0 &&mousePosition!==null) {
+    if (stompClient !== null && playerId !== 0 && mousePosition !== null) {
         stompClient.send("/app/setTarget", {}, JSON.stringify({'id': playerId, 'target': mousePosition}));
     }
 }
